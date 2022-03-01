@@ -32,10 +32,6 @@ jobs:
           repository: ${{ secrets.AUTOGRADER_REPO }}
           token: ${{ secrets.PAT }}
           path: Autograder
-    
-      - name: Get current PR
-        uses: jwalton/gh-find-current-pr@v1
-        id: finder
 
       - name: Run test
         env:
@@ -45,17 +41,15 @@ jobs:
         
       - name: Failure message
         if: failure()
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: machine-learning-apps/pr-comment@master
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
           path: Autograder/Common/Templates/test-failure.md
-          number: ${{ steps.finder.outputs.pr }}
-          delete: true
 
       - name: Success message
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: machine-learning-apps/pr-comment@master
+        env: 
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          GITHUB_TOKEN: ${{ secrets.PAT }}
           path: Autograder/Common/Templates/test-success.md
-          number: ${{ steps.finder.outputs.pr }}
-          delete: true
