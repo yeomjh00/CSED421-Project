@@ -1,0 +1,61 @@
+name: Test
+
+on:
+  push:
+    tags:
+      - sub.**
+
+jobs:
+  test-and-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out current repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          path: Submission
+        
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v17.2
+        with:
+          path: Submission
+          
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+        
+      - name: Check out tests private repo
+        uses: actions/checkout@v2
+        with:
+          repository: ${{ secrets.AUTOGRADER_REPO }}
+          token: ${{ secrets.PAT }}
+          path: Autograder
+    
+      - name: Get current PR
+        uses: jwalton/gh-find-current-pr@v1
+        id: finder
+
+      - name: Run test
+        env:
+          MODIFIED_FILES : ${{ steps.changed-files.outputs.all_modified_files }}
+          GITHUB_USER : ${{ github.actor }}
+        run: (cd Autograder/Common; bash autograder.sh Project1 >> Templates/test-failure.md)
+        
+      - name: Failure message
+        if: failure()
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          path: Autograder/Common/Templates/test-failure.md
+          number: ${{ steps.finder.outputs.pr }}
+          delete: true
+
+      - name: Success message
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+          path: Autograder/Common/Templates/test-success.md
+          number: ${{ steps.finder.outputs.pr }}
+          delete: true
