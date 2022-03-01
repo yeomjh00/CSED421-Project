@@ -11,6 +11,13 @@ student_id: <your student id>
 password: <your registration password>
 ```
 
+To check correctness
+
+```
+cd auth_test
+bash auth_test.sh
+```
+
 ## Testing
 
 ```
