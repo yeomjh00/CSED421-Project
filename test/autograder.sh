@@ -68,4 +68,6 @@ echo "PASSED : ${score}"
 echo "TOTAL  : ${full_score}"
 echo -e "\nSCORE  : ${conversion_score}/100"
 
+echo -e "\n"
+
 exit ${conversion_score}
