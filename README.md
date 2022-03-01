@@ -10,7 +10,7 @@ In auth.yaml
 
 ```
 student_id: <your student id>
-password: <your registration passwrod>
+password: <your registration password>
 ```
 
 ## Testing
