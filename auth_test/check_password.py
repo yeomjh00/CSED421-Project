@@ -16,8 +16,7 @@ def authentification(auth_url):
         result = requests.post(auth_url, json = json_account)
 
         if "ERROR" not in result.text:
-            global nickname
-            nickname = result.text
+            print("Nickname: " + result.text)
             print('Done')
         else:
             print('Auth Failed')
