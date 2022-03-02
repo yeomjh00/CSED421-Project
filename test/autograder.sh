@@ -11,6 +11,20 @@ else
     path="../"
 fi
 
+echo -e "\n=====================STYLE======================\n"
+
+pip install cpplint
+
+cpplint ${path}*.cc *.h
+passed=$?
+
+if [ passed != 0 ]; then
+    echo -e "\033[31m"FAIL"\033[0m\n"
+    exit 0
+fi
+
+echo -e "\n=====================DONE======================\n"
+
 echo -e "\n=====================BUILD======================\n"
 
 (cd ${path}; make clean; make)

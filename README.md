@@ -20,6 +20,10 @@ bash auth_test.sh
 
 ## Testing
 
+Test should pass cpplint
+
+Before get actual score, please pass cpplint
+
 ```
 cd test
 bash autograding.sh
