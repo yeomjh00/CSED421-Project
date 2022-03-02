@@ -4,6 +4,7 @@
 temp_file="temp.txt"
 full_score=0
 score=0
+style_score=0
 
 if [ $# -eq 1 ]; then
     path=$1
@@ -14,14 +15,9 @@ fi
 echo -e "\n=====================STYLE======================\n"
 
 pip install cpplint
-
-cpplint ${path}*.cc *.h
-passed=$?
-
-if [ passed != 0 ]; then
-    echo -e "\033[31m"FAIL"\033[0m\n"
-    exit 0
-fi
+cpplint ${path}*.cc ${path}*.h > ${temp_file} 
+python3 style_checker.py ${temp_file}
+style_score=$?
 
 echo -e "\n=====================DONE======================\n"
 
@@ -77,9 +73,10 @@ rm -rf ${temp_file}
 
 echo -e "\n====================TEST SCORE===================\n"
 
-conversion_score=$( expr ${score} \* 100 / ${full_score}  )
+conversion_score=$( expr ${score} \* 80 / ${full_score} + ${style_score} )
 echo "PASSED : ${score}"
 echo "TOTAL  : ${full_score}"
+echo "STYLE  : ${style_score}"
 echo -e "\nSCORE  : ${conversion_score}/100"
 
 echo -e "\n"

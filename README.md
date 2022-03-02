@@ -20,9 +20,9 @@ bash auth_test.sh
 
 ## Testing
 
-Test should pass cpplint
-
-Before get actual score, please pass cpplint
+- Q1 : 40%
+- Q2 : 40%
+- Style : 20%
 
 ```
 cd test
