@@ -17,5 +17,7 @@ with open(output_file) as f:
 
             if error_score < 0:
                 error_score = 0
+            elif error_score >= 15:
+                error_score = 20
 
 sys.exit(error_score)
