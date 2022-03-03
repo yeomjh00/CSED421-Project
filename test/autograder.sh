@@ -12,6 +12,18 @@ else
     path="../"
 fi
 
+echo -e "\n=====================CHECK======================\n"
+
+if python3 --version &> /dev/null -ne 0; then 
+    echo "Python3 is not installed"
+    exit -1
+fi
+
+if !pip --version &> /dev/null -ne 0; then
+    echo "pip is not installed"
+    exit -1
+fi
+
 echo -e "\n=====================STYLE======================\n"
 
 pip install cpplint
