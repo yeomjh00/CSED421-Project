@@ -2,6 +2,17 @@
 
 This is a project 1 of CSED421
 
+## Before Starting Project
+
+Requirements
+
+- python3
+- pip
+
+Please manually install above libraries.
+
+If not, autograder will not run properly and you will not be graded.
+
 ## Authentification setting
 
 In auth.yaml
