@@ -14,10 +14,11 @@ with open(output_file) as f:
             error_score = 20
             error_count = line[len(str_prefix):]
             error_score = error_score - 1 * int(error_count)
+            error_score = error_score + 5
 
             if error_score < 0:
                 error_score = 0
-            elif error_score >= 15:
+            elif error_score >= 20:
                 error_score = 20
 
 sys.exit(error_score)
