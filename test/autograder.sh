@@ -28,7 +28,7 @@ echo -e "\n=====================STYLE======================\n"
 
 pip install cpplint
 cpplint ${path}*.cc ${path}*.h > ${temp_file} 
-python3 style_checker.py ${temp_file}
+python3 style_checker.py ${temp_file} 0
 style_score=$?
 
 echo -e "\n=====================DONE======================\n"
