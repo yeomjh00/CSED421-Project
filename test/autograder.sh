@@ -27,9 +27,13 @@ fi
 echo -e "\n=====================STYLE======================\n"
 
 pip install cpplint
-cpplint ${path}*.cc ${path}*.h > ${temp_file} 
-python3 style_checker.py ${temp_file} 0
-style_score=$?
+if cpplint ${path}*.cc ${path}*.h > ${temp_file} -eq 0; then 
+    style_score=20
+else
+    python3 style_checker.py ${temp_file} 5 #give basic score of 5
+    style_score=$?
+fi
+rm -rf ${temp_file}
 
 echo -e "\n=====================DONE======================\n"
 
