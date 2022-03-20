@@ -25,11 +25,6 @@ bash auth_test.sh
 ./EduOM_Test 
 # Run my code without press enter
 ./EduOM_Test a 
-
-# Run solution code with press enter
-./EduOM_TestSolution
-# Run solution code without press enter
-./EduOM_TestSolution a
 ```
 
 ## Testing
