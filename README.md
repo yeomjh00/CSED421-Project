@@ -37,5 +37,5 @@ bash auth_test.sh
 
 ```
 cd test
-bash autograding.sh
+bash autograder.sh
 ```
