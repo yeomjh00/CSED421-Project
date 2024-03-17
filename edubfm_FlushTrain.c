@@ -72,7 +72,7 @@ Four edubfm_FlushTrain(TrainID* trainId, /* IN train to be flushed */
   e = eNOERROR;
   Two size_of_train = BI_BUFSIZE(type);
   index = edubfm_LookUp(trainId, type);
-  char* ptr_to_element = BI_HASHTABLEENTRY(type, index);
+  char* ptr_to_element = BI_BUFFER(type, index);
 
   if (BI_BITS(type, index) & 0x01) {
     e = RDsM_WriteTrain(ptr_to_element, trainId, size_of_train);

@@ -59,7 +59,6 @@ Four EduBfM_DiscardAll(void) {
       SET_NILBFMHASHKEY(BI_KEY(type, i));
       BI_FIXED(type, i) = 0;
       BI_BITS(type, i) = 0;
-      BI_NEXTHASHENTRY(type, i) = NIL;
     }
   }
   edubfm_DeleteAll();  // delete all hash entries

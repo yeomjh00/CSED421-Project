@@ -99,7 +99,7 @@ Four EduBfM_GetTrain(TrainID *trainId, /* IN train to be used */
     }
     return retBuf;
   } else {
-    BI_FIXED(type, index)++;
+    BI_FIXED(type, index) = BI_FIXED(type,index) + 1;
     BI_BITS(type, index) |= 0x04;
     return retBuf;
   }

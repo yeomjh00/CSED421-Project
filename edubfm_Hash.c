@@ -202,12 +202,12 @@ Four edubfm_LookUp(BfMHashKey *key, /* IN a hash key in Buffer Manager */
  *  error code
  */
 Four edubfm_DeleteAll(void) {
-  Two i;
-  Four tableSize;
+  Two type,i;
 
-  for (i = 0; i < tableSize; i++) {
-    *(BI_HASHTABLE(PAGE_BUF) + i) = NIL;
-    *(BI_HASHTABLE(LOT_LEAF_BUF) + i) = NIL;
+  for(type=0; type < 2; type++){
+    for (i = 0; i < HASHTABLESIZE(type); i++) {
+      BI_HASHTABLEENTRY(type, i) = NIL;
+    }
   }
 
   return (eNOERROR);

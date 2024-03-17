@@ -55,18 +55,19 @@ Four EduBfM_FlushAll(void) {
   Four e;    /* error */
   Two i;     /* index */
   Four type; /* buffer type */
+
+  e = eNOERROR;
   for (type = 0; type < 2; type++) {
     for (i = 0; i < BI_NBUFS(type); i++) {
-      if (BI_BITS(type, i) & 0x1) {
+      if (BI_BITS(type, i) & DIRTY == DIRTY) {
         e = edubfm_FlushTrain(&BI_KEY(type, i), type);
       }
       if (e != eNOERROR) {
         ERR(e);
-        return e;
       }
     }
   }
 
-  return (eNOERROR);
+  return e;
 
 } /* EduBfM_FlushAll() */

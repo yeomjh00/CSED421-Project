@@ -64,11 +64,17 @@ Four EduBfM_FreeTrain(TrainID *trainId, /* IN train to be freed */
   if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
 
   index = edubfm_LookUp(trainId, type);
-  if (index == NOTFOUND_IN_HTABLE) return index;
+  if (index == NOTFOUND_IN_HTABLE) return eNOTFOUND_BFM;
   fixed = BI_FIXED(type, index);
 
-  BI_FIXED(type, index) = fixed > 0 ? fixed - 1 : 0;
+  if(fixed <= 0){
+    printf("fixed counter is less than 0!!!\n");
+    printf("trainId = {%d, %d}\n", BI_KEY(type, index).volNo, BI_KEY(type, index).pageNo);
+    BI_FIXED(type, index) = 0;
+    }
+  else
+    BI_FIXED(type, index) = BI_FIXED(type, index) - 1;
 
-  return (eNOERROR);
+  return eNOERROR;
 
 } /* EduBfM_FreeTrain() */
