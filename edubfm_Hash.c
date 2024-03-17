@@ -39,16 +39,14 @@
  *  Four edubfm_DeleteAll(void)
  */
 
-
 #include <stdlib.h> /* for malloc & free */
+
 #include "EduBfM_common.h"
 #include "EduBfM_Internal.h"
 
-
-
 /*@
  * macro definitions
- */  
+ */
 
 /* Macro: BFM_HASH(k,type)
  * Description: return the hash value of the key given as a parameter
@@ -57,8 +55,7 @@
  *  Four type       : buffer type
  * Returns: (Two) hash value
  */
-#define BFM_HASH(k,type)	(((k)->volNo + (k)->pageNo) % HASHTABLESIZE(type))
-
+#define BFM_HASH(k, type) (((k)->volNo + (k)->pageNo) % HASHTABLESIZE(type))
 
 /*@================================
  * edubfm_Insert()
@@ -77,27 +74,31 @@
  *  error code
  *    eBADBUFINDEX_BFM - bad index value for buffer table
  */
-Four edubfm_Insert(
-    BfMHashKey 		*key,			/* IN a hash key in Buffer Manager */
-    Two 		index,			/* IN an index used in the buffer pool */
-    Four 		type)			/* IN buffer type */
+Four edubfm_Insert(BfMHashKey *key, /* IN a hash key in Buffer Manager */
+                   Two index,       /* IN an index used in the buffer pool */
+                   Four type)       /* IN buffer type */
 {
-    Four 		i;			
-    Two  		hashValue;
+  Four next;
+  Two hashValue;
+  CHECKKEY(key); /*@ check validity of key */
 
+  if ((index < 0) || (index > BI_NBUFS(type))) {
+    ERR(eBADBUFINDEX_BFM);
+    return eBADBUFINDEX_BFM;
+  }
 
-    CHECKKEY(key);    /*@ check validity of key */
+  hashValue = BFM_HASH(key, type);
 
-    if( (index < 0) || (index > BI_NBUFS(type)) )
-        ERR( eBADBUFINDEX_BFM );
+  if (BI_HASHTABLEENTRY(type, hashValue) == NIL) {
+    BI_HASHTABLEENTRY(type, hashValue) = index;
+    return eNOERROR;
+  }
 
-   
-
-    return( eNOERROR );
-
-}  /* edubfm_Insert */
-
-
+  next = BI_HASHTABLEENTRY(type, hashValue);
+  BI_HASHTABLEENTRY(type, hashValue) = index;
+  BI_NEXTHASHENTRY(type, index) = next;
+  return eNOERROR;
+} /* edubfm_Insert */
 
 /*@================================
  * edubfm_Delete()
@@ -116,23 +117,36 @@ Four edubfm_Insert(
  *  error code
  *    eNOTFOUND_BFM - The key isn't in the hash table.
  */
-Four edubfm_Delete(
-    BfMHashKey          *key,                   /* IN a hash key in buffer manager */
-    Four                type )                  /* IN buffer type */
+Four edubfm_Delete(BfMHashKey *key, /* IN a hash key in buffer manager */
+                   Four type)       /* IN buffer type */
 {
-    Two                 i, prev;                
-    Two                 hashValue;
+  Two cur, prev;
+  Two hashValue;
 
+  CHECKKEY(key); /*@ check validity of key */
 
-    CHECKKEY(key);    /*@ check validity of key */
+  hashValue = BFM_HASH(key, type);
+  cur = BI_HASHTABLEENTRY(type, hashValue);
 
+  if (cur < 0) {
+    ERR(eNOTFOUND_BFM);
+    return eNOTFOUND_BFM;
+  } else if (BI_NEXTHASHENTRY(type, cur) < 0 &&
+             EQUALKEY(&BI_KEY(type, cur),
+                      key)) {  // case 1. single value stored & matched
+    BI_HASHTABLEENTRY(type, hashValue) = -1;
+  }
 
-
-    ERR( eNOTFOUND_BFM );
-
-}  /* edubfm_Delete */
-
-
+  while (cur >= 0) {
+    prev = cur;
+    cur = BI_NEXTHASHENTRY(type, cur);
+    if (EQUALKEY(&BI_KEY(type, cur), key)) {
+      BI_NEXTHASHENTRY(type, prev) = BI_NEXTHASHENTRY(type, cur);
+      return 0;
+    }
+  }
+  return eNOTFOUND_BFM;
+} /* edubfm_Delete */
 
 /*@================================
  * edubfm_LookUp()
@@ -151,23 +165,26 @@ Four edubfm_Delete(
  *  index on buffer table entry holding the train specified by 'key'
  *  (NOTFOUND_IN_HTABLE - The key don't exist in the hash table.)
  */
-Four edubfm_LookUp(
-    BfMHashKey          *key,                   /* IN a hash key in Buffer Manager */
-    Four                type)                   /* IN buffer type */
+Four edubfm_LookUp(BfMHashKey *key, /* IN a hash key in Buffer Manager */
+                   Four type)       /* IN buffer type */
 {
-    Two                 i, j;                   /* indices */
-    Two                 hashValue;
+  Two i, j; /* indices */
+  Two hashValue;
 
+  CHECKKEY(key); /*@ check validity of key */
 
-    CHECKKEY(key);    /*@ check validity of key */
+  hashValue = BFM_HASH(key, type);
+  i = BI_HASHTABLEENTRY(type, hashValue);
+  // j = BFM_HASH(key, type);
 
+  while (i >= 0) {
+    if (EQUALKEY(&BI_KEY(type, i), key)) return i;
+    i = BI_NEXTHASHENTRY(type, i);
+  }
 
+  return (NOTFOUND_IN_HTABLE);
 
-    return(NOTFOUND_IN_HTABLE);
-    
-}  /* edubfm_LookUp */
-
-
+} /* edubfm_LookUp */
 
 /*@================================
  * edubfm_DeleteAll()
@@ -184,13 +201,15 @@ Four edubfm_LookUp(
  * Returns:
  *  error code
  */
-Four edubfm_DeleteAll(void)
-{
-    Two 	i;
-    Four        tableSize;
-    
+Four edubfm_DeleteAll(void) {
+  Two i;
+  Four tableSize;
 
+  for (i = 0; i < tableSize; i++) {
+    *(BI_HASHTABLE(PAGE_BUF) + i) = NIL;
+    *(BI_HASHTABLE(LOT_LEAF_BUF) + i) = NIL;
+  }
 
-    return(eNOERROR);
+  return (eNOERROR);
 
-} /* edubfm_DeleteAll() */ 
+} /* edubfm_DeleteAll() */

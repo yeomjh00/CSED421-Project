@@ -25,18 +25,15 @@
 /*
  * Module: EduBfM_GetTrain.c
  *
- * Description : 
+ * Description :
  *  Return a buffer which has the disk content indicated by `trainId'.
  *
  * Exports:
  *  Four EduBfM_GetTrain(TrainID *, char **, Four)
  */
 
-
 #include "EduBfM_common.h"
 #include "EduBfM_Internal.h"
-
-
 
 /*@================================
  * EduBfM_GetTrain()
@@ -44,7 +41,7 @@
 /*
  * Function: EduBfM_GetTrain(TrainID*, char**, Four)
  *
- * Description : 
+ * Description :
  * (Following description is for original ODYSSEUS/COSMOS BfM.
  *  For ODYSSEUS/EduCOSMOS EduBfM, refer to the EduBfM project manual.)
  *
@@ -54,7 +51,7 @@
  *  then simply return it and set the reference bit of the correponding
  *  buffer table entry.   Otherwise, i.e. the train does not exist in the
  *  pool, allocate a buffer (a buffer selected as victim may be forced out
- *  by the buffer replacement algorithm), read a disk train into the 
+ *  by the buffer replacement algorithm), read a disk train into the
  *  selected buffer train, and return it.
  *
  * Returns:
@@ -67,24 +64,43 @@
  *  1) parameter retBuf
  *     pointer to buffer holding the disk train indicated by `trainId'
  */
-Four EduBfM_GetTrain(
-    TrainID             *trainId,               /* IN train to be used */
-    char                **retBuf,               /* OUT pointer to the returned buffer */
-    Four                type )                  /* IN buffer type */
+Four EduBfM_GetTrain(TrainID *trainId, /* IN train to be used */
+                     char **retBuf,    /* OUT pointer to the returned buffer */
+                     Four type)        /* IN buffer type */
 {
-    Four                e;                      /* for error */
-    Four                index;                  /* index of the buffer pool */
+  Four e;     /* for error */
+  Four index; /* index of the buffer pool */
 
+  /*@ Check the validity of given parameters */
+  /* Some restrictions may be added         */
+  if (retBuf == NULL) ERR(eBADBUFFER_BFM);
 
-    /*@ Check the validity of given parameters */
-    /* Some restrictions may be added         */
-    if(retBuf == NULL) ERR(eBADBUFFER_BFM);
+  /* Is the buffer type valid? */
+  if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
 
-    /* Is the buffer type valid? */
-    if(IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);	
+  index = edubfm_LookUp(trainId, type);
+  if (index == NOTFOUND_IN_HTABLE) {
+    index = edubfm_AllocTrain(type);
+    e = edubfm_ReadTrain(trainId, *retBuf, type);
+    // if (e != eNOERROR) { // @todo: return value = error code ? address
+    //   ERR(e);
+    //   return e;
+    // }
 
-
-
-    return(eNOERROR);   /* No error */
-
-}  /* EduBfM_GetTrain() */
+    // initialize bufTable element
+    BI_KEY(type, index).pageNo = trainId->pageNo;
+    BI_KEY(type, index).volNo = trainId->volNo;
+    BI_FIXED(type, index) = 1;
+    BI_BITS(type, index) |= 0x04;
+    e = edubfm_Insert(&BI_KEY(type, index), index, type);
+    if (e != eNOERROR) {
+      ERR(e);
+      return e;
+    }
+    return retBuf;
+  } else {
+    BI_FIXED(type, index)++;
+    BI_BITS(type, index) |= 0x04;
+    return retBuf;
+  }
+}

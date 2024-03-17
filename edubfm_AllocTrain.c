@@ -46,7 +46,7 @@ extern CfgParams_T sm_cfgParams;
 /*
  * Function: Four edubfm_AllocTrain(Four)
  *
- * Description : 
+ * Description :
  * (Following description is for original ODYSSEUS/COSMOS BfM.
  *  For ODYSSEUS/EduCOSMOS EduBfM, refer to the EduBfM project manual.)
  *
@@ -59,7 +59,7 @@ extern CfgParams_T sm_cfgParams;
  *  the bit for the second chance and proceed to the next entry, otherwise
  *  the current buffer indicated by BI_NEXTVICTIM(type) is selected to be
  *  returned.
- *  Before return the buffer, if the dirty bit of the victim is set, it 
+ *  Before return the buffer, if the dirty bit of the victim is set, it
  *  must be force out to the disk.
  *
  * Returns;
@@ -68,19 +68,40 @@ extern CfgParams_T sm_cfgParams;
  *     eNOUNFIXEDBUF_BFM - There is no unfixed buffer.
  *     some errors caused by fuction calls
  */
-Four edubfm_AllocTrain(
-    Four 	type)			/* IN type of buffer (PAGE or TRAIN) */
+Four edubfm_AllocTrain(Four type) /* IN type of buffer (PAGE or TRAIN) */
 {
-    Four 	e;			/* for error */
-    Four 	victim;			/* return value */
-    Four 	i;
-    
+  Four e;      /* for error */
+  Four victim; /* return value */
+  Four i;
 
-	/* Error check whether using not supported functionality by EduBfM */
-	if(sm_cfgParams.useBulkFlush) ERR(eNOTSUPPORTED_EDUBFM);
+  /* Error check whether using not supported functionality by EduBfM */
+  if (sm_cfgParams.useBulkFlush) ERR(eNOTSUPPORTED_EDUBFM);
 
+  i = (Four)BI_NEXTVICTIM(type);
+  while (TRUE) {
+    if (BI_FIXED(type, i) > 0) {  // continue if fixed
+      i = (i + 1) % BI_NBUFS(type);
+      continue;
+    }
 
-    
-    return( victim );
-    
-}  /* edubfm_AllocTrain */
+    if (BI_BITS(type, i) & 0x04) {  // ref_bit == 1
+      BI_BITS(type, i) &= ~(0x04);
+      i = (i + 1) % BI_NBUFS(type);
+    } else {  // ref_bit == 0
+      victim = i;
+      BI_NEXTVICTIM(type) = (victim + 1) % BI_NBUFS(type);
+
+      if (BI_BITS(type, victim) & 1) {
+        edubfm_FlushTrain(&BI_KEY(type, victim), type);
+      }
+
+      BI_BITS(type, victim) = 0;
+      // if(!IS_NILBFMHASHKEY(BI_KEY(type, victim)))
+      edubfm_Delete(&BI_KEY(type, victim), type);  // hash table deletion
+      break;
+    }
+  }
+
+  return (victim);
+
+} /* edubfm_AllocTrain */

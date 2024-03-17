@@ -25,7 +25,7 @@
 /*
  * Module: edubfm_FlushTrain.c
  *
- * Description : 
+ * Description :
  *  Write a train specified by 'trainId' into the disk.
  *
  * Exports:
@@ -46,7 +46,7 @@
 /*
  * Function: Four edubfm_FlushTrain(TrainID*, Four)
  *
- * Description : 
+ * Description :
  * (Following description is for original ODYSSEUS/COSMOS BfM.
  *  For ODYSSEUS/EduCOSMOS EduBfM, refer to the EduBfM project manual.)
  *
@@ -60,19 +60,25 @@
  *  error code
  *    some errors caused by function calls
  */
-Four edubfm_FlushTrain(
-    TrainID 			*trainId,		/* IN train to be flushed */
-    Four   			type)			/* IN buffer type */
+Four edubfm_FlushTrain(TrainID* trainId, /* IN train to be flushed */
+                       Four type)        /* IN buffer type */
 {
-    Four 			e;			/* for errors */
-    Four 			index;			/* for an index */
+  Four e;     /* for errors */
+  Four index; /* for an index */
 
+  /* Error check whether using not supported functionality by EduBfM */
+  if (RM_IS_ROLLBACK_REQUIRED()) ERR(eNOTSUPPORTED_EDUBFM);
 
-	/* Error check whether using not supported functionality by EduBfM */
-	if (RM_IS_ROLLBACK_REQUIRED()) ERR(eNOTSUPPORTED_EDUBFM);
+  e = eNOERROR;
+  Two size_of_train = BI_BUFSIZE(type);
+  index = edubfm_LookUp(trainId, type);
+  char* ptr_to_element = BI_HASHTABLEENTRY(type, index);
 
+  if (BI_BITS(type, index) & 0x01) {
+    e = RDsM_WriteTrain(ptr_to_element, trainId, size_of_train);
+    BI_BITS(type, index) &= ~0x01;
+  }
 
-	
-    return( eNOERROR );
+  return e;
 
-}  /* edubfm_FlushTrain */
+} /* edubfm_FlushTrain */

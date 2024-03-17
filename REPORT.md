@@ -1,8 +1,8 @@
 # EduBfM Report
 
-Name:
+Name: Jaehu Yeom
 
-Student id:
+Student id: 20180740
 
 # Problem Analysis
 

@@ -32,11 +32,8 @@
  *  Four EduBfM_DiscardAll(void)
  */
 
-
 #include "EduBfM_common.h"
 #include "EduBfM_Internal.h"
-
-
 
 /*@================================
  * EduBfM_DiscardAll()
@@ -53,14 +50,20 @@
  * Returns:
  *  error code
  */
-Four EduBfM_DiscardAll(void)
-{
-    Four 	e;			/* error */
-    Two 	i;			/* index */
-    Four 	type;			/* buffer type */
+Four EduBfM_DiscardAll(void) {
+  Four e;    /* error */
+  Two i;     /* index */
+  Four type; /* buffer type */
+  for (type = 0; type < 2; type++) {
+    for (i = 0; i < BI_NBUFS(type); i++) {
+      SET_NILBFMHASHKEY(BI_KEY(type, i));
+      BI_FIXED(type, i) = 0;
+      BI_BITS(type, i) = 0;
+      BI_NEXTHASHENTRY(type, i) = NIL;
+    }
+  }
+  edubfm_DeleteAll();  // delete all hash entries
 
+  return (eNOERROR);
 
-
-    return(eNOERROR);
-
-}  /* EduBfM_DiscardAll() */
+} /* EduBfM_DiscardAll() */

@@ -112,7 +112,7 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 	for (i = 0; i < NUM_PAGE_BUFS; i++)
 	{
 		/* The successful default solution code is called if "Edu" is omitted from the function name in the following line */
-		e = EduBfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
+		e = BfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
 		if (e < eNOERROR) ERR(e);
 		printf("pageNo %d is inserted into buffer using GetTrain()\n", pageID[i].pageNo);
 	}
@@ -131,7 +131,7 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 	for (i = 0; i < NUM_PAGE_BUFS; i = i + 2)
 	{
 		/* The successful default solution code is called if "Edu" is omitted from the function name in the following line */
-		e = EduBfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
+		e = BfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
 		if (e < eNOERROR) ERR(e);
 		printf("pageNo %d is inserted into buffer using GetTrain()\n", pageID[i].pageNo);
 	}
@@ -191,7 +191,7 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 	printf("->Insert a new page which has page number makes collision in hash function \n\n");
 	
 	/* The successful default solution code is called if "Edu" is omitted from the function name in the following line */
-	e = EduBfM_GetTrain(&pageID[LAST_PAGE_NUM], (char **)&apage, PAGE_BUF);
+	e = BfM_GetTrain(&pageID[LAST_PAGE_NUM], (char **)&apage, PAGE_BUF);
 	if (e < eNOERROR) ERR(e);
 	printf("pageNo %d is inserted into buffer using GetTrain()\n", pageID[LAST_PAGE_NUM].pageNo);  
 	
@@ -211,7 +211,7 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 	for ( i = NUM_PAGE_BUFS; i < PAGE_BUFS_CLOCKALG ; i++)
 	{
 		/* The successful default solution code is called if "Edu" is omitted from the function name in the following line */
-		 e = EduBfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
+		 e = BfM_GetTrain(&pageID[i], (char **)&apage, PAGE_BUF);
          if (e < eNOERROR) ERR(e);
 		 printf("pageNo %d is inserted into buffer using GetTrain()\n", pageID[i].pageNo);
 
@@ -226,7 +226,7 @@ Four EduBfM_Test(Four volId, Boolean getcharFlag)
 	printf("\t(Hash Table)\n");
 	press_enter_for_continue(getcharFlag);
 	
-	printf("\n\n");
+	printf("\n\n");	
 
 
 	printf("****************************** TEST#1, EduBfM_GetTrain and EduBfM_FreeTrain. ******************************\n\n\n");

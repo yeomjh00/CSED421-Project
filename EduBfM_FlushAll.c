@@ -32,11 +32,8 @@
  *  Four EduBfM_FlushAll(void)
  */
 
-
 #include "EduBfM_common.h"
 #include "EduBfM_Internal.h"
-
-
 
 /*@================================
  * EduBfM_FlushAll()
@@ -54,15 +51,22 @@
  * Returns:
  *  error code
  */
-Four EduBfM_FlushAll(void)
-{
-    Four        e;                      /* error */
-    Two         i;                      /* index */
-    Four        type;                   /* buffer type */
+Four EduBfM_FlushAll(void) {
+  Four e;    /* error */
+  Two i;     /* index */
+  Four type; /* buffer type */
+  for (type = 0; type < 2; type++) {
+    for (i = 0; i < BI_NBUFS(type); i++) {
+      if (BI_BITS(type, i) & 0x1) {
+        e = edubfm_FlushTrain(&BI_KEY(type, i), type);
+      }
+      if (e != eNOERROR) {
+        ERR(e);
+        return e;
+      }
+    }
+  }
 
-    
+  return (eNOERROR);
 
-    return( eNOERROR );
-    
-}  /* EduBfM_FlushAll() */
-
+} /* EduBfM_FlushAll() */

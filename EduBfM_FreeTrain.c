@@ -32,11 +32,8 @@
  *  Four EduBfM_FreeTrain(TrainID *, Four)
  */
 
-
 #include "EduBfM_common.h"
 #include "EduBfM_Internal.h"
-
-
 
 /*@================================
  * EduBfM_FreeTrain()
@@ -56,18 +53,22 @@
  *    eBADBUFFERTYPE_BFM - bad buffer type
  *    some errors caused by fuction calls
  */
-Four EduBfM_FreeTrain( 
-    TrainID             *trainId,       /* IN train to be freed */
-    Four                type)           /* IN buffer type */
+Four EduBfM_FreeTrain(TrainID *trainId, /* IN train to be freed */
+                      Four type)        /* IN buffer type */
 {
-    Four                index;          /* index on buffer holding the train */
-    Four 		e;		/* error code */
+  Four index; /* index on buffer holding the train */
+  Four e;     /* error code */
+  Two fixed;
 
-    /*@ check if the parameter is valid. */
-    if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);	
+  /*@ check if the parameter is valid. */
+  if (IS_BAD_BUFFERTYPE(type)) ERR(eBADBUFFERTYPE_BFM);
 
+  index = edubfm_LookUp(trainId, type);
+  if (index == NOTFOUND_IN_HTABLE) return index;
+  fixed = BI_FIXED(type, index);
 
-    
-    return( eNOERROR );
-    
+  BI_FIXED(type, index) = fixed > 0 ? fixed - 1 : 0;
+
+  return (eNOERROR);
+
 } /* EduBfM_FreeTrain() */
