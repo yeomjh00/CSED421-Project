@@ -81,26 +81,23 @@ Four EduBfM_GetTrain(TrainID *trainId, /* IN train to be used */
   index = edubfm_LookUp(trainId, type);
   if (index == NOTFOUND_IN_HTABLE) {
     index = edubfm_AllocTrain(type);
-    e = edubfm_ReadTrain(trainId, *retBuf, type);
-    // if (e != eNOERROR) { // @todo: return value = error code ? address
-    //   ERR(e);
-    //   return e;
-    // }
-
+    e = edubfm_ReadTrain(trainId, BI_BUFFER(type, index), type);
+    if(e != eNOERROR)
+      ERR(e);
     // initialize bufTable element
     BI_KEY(type, index).pageNo = trainId->pageNo;
     BI_KEY(type, index).volNo = trainId->volNo;
     BI_FIXED(type, index) = 1;
-    BI_BITS(type, index) |= 0x04;
+    BI_BITS(type, index) = BI_BITS(type, index) | 0x04;
     e = edubfm_Insert(&BI_KEY(type, index), index, type);
     if (e != eNOERROR) {
       ERR(e);
       return e;
     }
-    return retBuf;
   } else {
-    BI_FIXED(type, index) = BI_FIXED(type,index) + 1;
-    BI_BITS(type, index) |= 0x04;
-    return retBuf;
+    BI_FIXED(type, index) = BI_FIXED(type, index) + 1;
+    BI_BITS(type, index) = (BI_BITS(type, index) | 0x04);
   }
+  *retBuf = BI_BUFFER(type, index);
+  return eNOERROR;
 }
